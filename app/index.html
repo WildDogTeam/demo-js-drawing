@@ -12,20 +12,20 @@
 <script>
     var myCanvas = document.getElementById('drawing-canvas');
   $(document).ready(function () {
-    //Set up some globals
+    //创建全局对象
     var pixSize = 4, lastPoint = null, currentColor = "000", mouseDown = 0;
 
-    //Create a reference to the pixel data for our drawing.
+    //建立与wilddog的数据连接
     var pixelDataRef = new Wilddog('https://drawing.wilddogio.com/');
 
-    // Set up our canvas
+    //创建canvas绘图对象
     var myContext = myCanvas.getContext ? myCanvas.getContext('2d') : null;
     if (myContext == null) {
       alert("You must use a browser that supports HTML5 Canvas to run this demo.");
       return;
     }
 
-    //Setup each color palette & add it to the screen
+    //创建绘图所能选择的颜色
     var colors = ["fff","000","f00","0f0","00f","88f","f8d","f88","f05","f80","0f8","cf0","08f","408","ff8","8ff"];
     for (c in colors) {
       var item = $('<div/>').css("background-color", '#' + colors[c]).addClass("colorbox");
@@ -38,22 +38,21 @@
       item.appendTo('#colorholder');
     };
 
-    //Keep track of if the mouse is up or down
+    //跟踪鼠标mousedown和mouseup
     myCanvas.onmousedown = function () {
-
       mouseDown = 1;
     };
     myCanvas.onmouseout = myCanvas.onmouseup = function () {
       mouseDown = 0; lastPoint = null;
     };
-    var rectArr = [];
-    //Draw a line from the mouse's last position to its current position
+    var rectArr = {};
+    //根据鼠标的位置创建canvas对应的绘图
     var drawLineOnMouseMove = function(e) {
       if (!mouseDown) return;
 
       e.preventDefault();
 
-      // Bresenham's line algorithm. We use this to ensure smooth lines are drawn
+      // 获取鼠标当前位置，定位对应的canvas上面的位置，如果是白色则删除此处所绘制过的图形
       var offset = $('canvas').offset();
       var x1 = Math.floor((e.pageX - offset.left) / pixSize - 1),
         y1 = Math.floor((e.pageY - offset.top) / pixSize - 1);
@@ -64,11 +63,11 @@
 
 
       while (true) {
-        //write the pixel into Wilddog, or if we are drawing white, remove the pixel
+        //更新数据到wilddog，如果是白色则删除对应数据
         var fillColor = currentColor === "fff" ? null : currentColor;
-        var dotObj = {x0:x0 , y0:y0 , color:fillColor};
-        rectArr.push(dotObj);
-        drawPixel(dotObj);
+        myContext.fillStyle = "#" + fillColor;
+        myContext.fillRect(parseInt(x0) * pixSize, parseInt(y0) * pixSize, pixSize, pixSize);
+        rectArr[x0 +":" + y0]=fillColor;
 
         if (x0 == x1 && y0 == y1) break;
         var e2 = 2 * err;
@@ -85,35 +84,31 @@
     };
 
     var setCanvasLine = function () {
-        pixelDataRef.push({"fillArr":rectArr});
-        rectArr = [];
+        pixelDataRef.update(rectArr);
+        rectArr = {};
     }
 
     $(myCanvas).mousemove(drawLineOnMouseMove);
     $(myCanvas).mousedown(drawLineOnMouseMove);
     $(myCanvas).mouseup(setCanvasLine);
 
-    // Add callbacks that are fired any time the pixel data changes and adjusts the canvas appropriately.
-    // Note that child_added events will be fired for initial pixel data as well.
+    // 定义绘制图形的方法
 
     var drawPixel = function(snapshot) {
-      if (snapshot["color"]) {
-        var coords = snapshot;
-        myContext.fillStyle = "#" + coords["color"];
-        myContext.fillRect(parseInt(coords["x0"]) * pixSize, parseInt(coords["y0"]) * pixSize, pixSize, pixSize);
-      }else{
-        var coords = snapshot.val()["fillArr"];
-        for(var i = 0; i < coords.length; i++){
-          myContext.fillStyle = "#" + coords[i]["color"];
-          myContext.fillRect(parseInt(coords[i]["x0"]) * pixSize, parseInt(coords[i]["y0"]) * pixSize, pixSize, pixSize);
-        }
-      }
+        var coords = snapshot.key().split(":");
+        var color = snapshot.val();
+        console.log(coords);
+        myContext.fillStyle = "#" + color;
+        myContext.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
     };
 
+    //删除wilddog数据
     var clearPixel = function(snapshot) {
-      var coords = snapshot.val().fillArr;
-      myContext.clearRect(parseInt(coords[0]["x0"]) * pixSize, parseInt(coords[0]["y0"]) * pixSize, pixSize, pixSize);
+      var coords = snapshot.key().split(":");
+      myContext.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
     };
+
+    //根据wilddog数据改变调用不同的绘图方法
     pixelDataRef.on('child_added', drawPixel);
     pixelDataRef.on('child_changed', drawPixel);
     pixelDataRef.on('child_removed', clearPixel);
