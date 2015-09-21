@@ -10,11 +10,10 @@
 </div>
 <div id="colorholder"></div>
 <script>
-    var currentColor = "000";
     var myCanvas = document.getElementById('drawing-canvas');
   $(document).ready(function () {
     //创建全局对象
-    var pixSize = 4, lastPoint = null, mouseDown = 0;
+    var pixSize = 4, lastPoint = null, currentColor = "fff", mouseDown = 0;
 
     //建立与wilddog的数据连接
     var pixelDataRef = new Wilddog('https://drawing.wilddogio.com/');
@@ -65,7 +64,7 @@
 
       while (true) {
         //更新数据到wilddog，如果是白色则删除对应数据
-        var fillColor = currentColor == "fff" ? "fff" : currentColor;
+        var fillColor = currentColor === "fff" ? null : currentColor;
         myContext.fillStyle = "#" + fillColor;
         myContext.fillRect(parseInt(x0) * pixSize, parseInt(y0) * pixSize, pixSize, pixSize);
         rectArr[x0 +":" + y0]=fillColor;
