@@ -102,7 +102,7 @@
         myContext.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
     };
 
-    //删除wilddog数据
+    //定义删除wilddog数据的函数
     var clearPixel = function(snapshot) {
       var coords = snapshot.key().split(":");
       myContext.clearRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
