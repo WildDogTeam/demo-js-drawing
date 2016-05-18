@@ -113,6 +113,19 @@
     pixelDataRef.on('child_changed', drawPixel);
     pixelDataRef.on('child_removed', clearPixel);
   });
+
+</script>
+<div style='text-align:center' >
+  <input type="button" value="清理画板" id="flush" onClick="return flush()" style="
+    margin-top: 20px;
+    width: 80px;
+    height: 40px;">
+</div>
+<script>
+  function flush() {
+    var clearInstance = new Wilddog('https://drawing.wilddogio.com/');
+    clearInstance.remove();
+  }
 </script>
 </body>
 </html>
