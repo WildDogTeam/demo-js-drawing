@@ -99,7 +99,6 @@
     var drawPixel = function(snapshot) {
         var coords = snapshot.key().split(":");
         var color = snapshot.val();
-        console.log(coords);
         myContext.fillStyle = "#" + color;
         myContext.fillRect(parseInt(coords[0]) * pixSize, parseInt(coords[1]) * pixSize, pixSize, pixSize);
     };
@@ -113,7 +112,7 @@
     //根据wilddog数据改变调用不同的绘图方法
     pixelDataRef.on('child_added', drawPixel, function (error) {
       if(error.code == "TOO_BIG"){
-        alert("画图信息数据过多");
+        alert("画图信息数据过多 已自动清理画板");
         return flush();
       }
     });
