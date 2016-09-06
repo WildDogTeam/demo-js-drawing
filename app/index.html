@@ -6,14 +6,23 @@
 </head>
 <body>
 <div class="l-demo-container">
-  <canvas id="drawing-canvas" width="480" height="420"></canvas>
+  <div class="header">
+    <span class="circle"></span>
+    <span class="circle"></span>
+    <span class="circle"></span>
+  </div>
+  <div class="canvas-content">
+    <canvas id="drawing-canvas" width="684" height="324"></canvas>  
+  </div>
+  <div id="colorholder">
+      <span id="flush" onClick="return flush()">清理画板</span>
+  </div>
 </div>
-<div id="colorholder"></div>
 <script>
     var myCanvas = document.getElementById('drawing-canvas');
   $(document).ready(function () {
     //创建全局对象
-    var pixSize = 4, lastPoint = null, currentColor = "000", mouseDown = 0;
+    var pixSize = 2, lastPoint = null, currentColor = "000", mouseDown = 0;
 
     //建立与wilddog的数据连接
     var pixelDataRef = new Wilddog('https://drawing.wilddogio.com/');
@@ -26,7 +35,7 @@
     }
 
     //创建绘图所能选择的颜色
-    var colors = ["fff","000","f00","0f0","00f","88f","f8d","f88","f05","f80","0f8","cf0","08f","408","ff8","8ff"];
+    var colors = ["fff","000","eb3232","e6501e","fef200","32af5a","3c96e6","af20af"];
     for (c in colors) {
       var item = $('<div/>').css("background-color", '#' + colors[c]).addClass("colorbox");
       item.click((function () {
@@ -38,7 +47,7 @@
       item.appendTo('#colorholder');
     };
 
-    //跟踪鼠标mousedown和mouseup
+    //跟踪鼠标mousedown和mouseup 
     myCanvas.onmousedown = function () {
       mouseDown = 1;
     };
@@ -55,12 +64,11 @@
       // 获取鼠标当前位置，定位对应的canvas上面的位置，如果是白色则删除此处所绘制过的图形
       var offset = $('canvas').offset();
       var x1 = Math.floor((e.pageX - offset.left) / pixSize - 1),
-        y1 = Math.floor((e.pageY - offset.top) / pixSize - 1);
+        y1 = Math.floor((e.pageY - offset.top) / pixSize - 1) + (16/ pixSize);
       var x0 = (lastPoint == null) ? x1 : lastPoint[0];
       var y0 = (lastPoint == null) ? y1 : lastPoint[1];
       var dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
       var sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1, err = dx - dy;
-
 
       while (true) {
         //更新数据到wilddog，如果是白色则删除对应数据
@@ -121,12 +129,6 @@
   });
 
 </script>
-<div style='text-align:center' >
-  <input type="button" value="清理画板" id="flush" onClick="return flush()" style="
-    margin-top: 20px;
-    width: 80px;
-    height: 40px;">
-</div>
 <script>
   function flush() {
     var clearInstance = new Wilddog('https://drawing.wilddogio.com/');
