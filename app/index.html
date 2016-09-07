@@ -1,6 +1,7 @@
 <html>
 <head>
-  <script src='https://cdn.wilddog.com/js/client/current/wilddog.js'></script>
+  <!--<script src='https://cdn.wilddog.com/js/client/current/wilddog.js'></script>-->
+  <script type="text/javascript" src="https://cdn.wilddog.com/sdk/js/2.0.0/wilddog-sync.js"></script>
   <script src="https://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
   <link rel="stylesheet" type="text/css" href="/styles/example.css">
 </head>
@@ -16,8 +17,13 @@
     var pixSize = 4, lastPoint = null, currentColor = "000", mouseDown = 0;
 
     //建立与wilddog的数据连接
-    var pixelDataRef = new Wilddog('https://drawing.wilddogio.com/');
-
+    var config = {
+      authDomain:"drawing.wilddog.com",
+      syncURL: "https://drawing.wilddogio.com"
+    };
+    wilddog.initializeApp(config);
+//    var pixelDataRef = new Wilddog('https://drawing.wilddogio.com/');
+    var pixelDataRef = wilddog.sync().ref();
     //创建canvas绘图对象
     var myContext = myCanvas.getContext ? myCanvas.getContext('2d') : null;
     if (myContext == null) {
@@ -129,8 +135,13 @@
 </div>
 <script>
   function flush() {
-    var clearInstance = new Wilddog('https://drawing.wilddogio.com/');
-    clearInstance.remove();
+      var config = {
+          authDomain:"drawing.wilddog.com",
+          syncURL: "https://drawing.wilddogio.com"
+      };
+      wilddog.initializeApp(config);
+      var clearInstance = wilddog.sync().ref();
+      clearInstance.remove();
   }
 </script>
 </body>
